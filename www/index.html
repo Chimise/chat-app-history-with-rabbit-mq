@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+</head>
+
+<body>
+    <div>
+        Messages:
+        <div id="messages"></div>
+        <form id="msg-form">
+            <input type="text" placeholder="Send a message" id="msg-box" />
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+</body>
+<script>
+    const url = `ws://${document.location.host}`
+    const ws = new WebSocket(url);
+    const messages = document.querySelector('#messages');
+    const form = document.querySelector('#msg-form');
+    const msgBox = document.querySelector('#msg-box');
+
+    ws.onmessage = function (message) {
+        console.log(message);
+        const msgDiv = document.createElement('div');
+        const data = message.data;
+
+        if (typeof data === 'string') {
+            msgDiv.innerHTML = data;
+            messages.appendChild(msgDiv);
+        } else {
+            message.data.text().then(data => {
+                msgDiv.innerHTML = data;
+                messages.appendChild(msgDiv);
+            });
+        }
+    }
+
+
+    form.addEventListener('submit', function (evt) {
+        evt.preventDefault();
+        const message = msgBox.value;
+        ws.send(message);
+        msgBox.value = '';
+    })
+
+</script>
+
+</html>
